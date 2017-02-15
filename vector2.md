@@ -73,6 +73,8 @@ euclidean to polar
 
 #### others
 
+`hash(v)`
+
 `clone(v)`
 
 `set(v1, v2)`

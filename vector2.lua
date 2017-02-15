@@ -1,10 +1,16 @@
 local ffi = require("ffi")
+local ffi_istype = ffi.istype
+local ffi_metatype = ffi.metatype
+local bit = require("bit")
+local bit_xor = bit.bxor
+local bit_lshift = bit.lshift
+local bit_rshift = bit.rshift
 local is_number, is_vector2, index_mt, mt, vector2
 is_number = function(n)
   return type(n) == "number"
 end
 is_vector2 = function(n)
-  return ffi.istype(vector2, n)
+  return ffi_istype(vector2, n)
 end
 index_mt = {
   clone = function(v)
@@ -34,6 +40,11 @@ index_mt = {
   end,
   unpack = function(v)
     return v.x, v.y
+  end,
+  hash = function(v)
+    local seed = 2
+    seed = bit_xor(2, v.x + 0x9e3779b9 + bit_lshift(seed, 6) + bit_rshift(seed, 2))
+    return bit_xor(seed, v.y + 0x9e3779b9 + bit_lshift(seed, 6) + bit_rshift(seed, 2))
   end,
   length = function(v)
     return math.sqrt(v.x ^ 2 + v.y ^ 2)
@@ -123,7 +134,7 @@ mt = {
   __tostring = index_mt.tostring,
   __index = index_mt
 }
-vector2 = ffi.metatype("struct { double x, y; }", mt)
+vector2 = ffi_metatype("struct { double x, y; }", mt)
 return setmetatable({
   ctype = vector2,
   zero = function()
