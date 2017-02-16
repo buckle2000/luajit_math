@@ -30,6 +30,10 @@ turn polar into euclidean
 
 is this a vector2?
 
+`hashxy(x, y)` -> number
+
+hash function
+
 ### module & instance API
 
 functions for both module and vector instance

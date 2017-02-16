@@ -1,23 +1,34 @@
 ffi = require "ffi"
-ffi_istype = ffi.istype
+ffi_istype   = ffi.istype
 ffi_metatype = ffi.metatype
+
 bit = require "bit"
-bit_xor = bit.bxor
+bit_xor    = bit.bxor
 bit_lshift = bit.lshift
 bit_rshift = bit.rshift
+
+math = require "math"
+sqrt  = math.sqrt
+atan2 = math.atan2
+
 local *
 
 is_number = (n) -> type(n) == "number"
 is_vector2 = (n) -> ffi_istype vector2, n
 
+hashxy = (x, y) ->
+  seed = 2
+  seed = bit_xor(2, x + 0x9e3779b9 + bit_lshift(seed, 6) + bit_rshift(seed, 2))
+  bit_xor(seed, y + 0x9e3779b9 + bit_lshift(seed, 6) + bit_rshift(seed, 2))
+
 index_mt = {
   clone: (v) ->
     vector2 v.x, v.y
   euclidean: (v) ->
-    vector2 v\len!, math.atan2(v.x, v.y)
+    vector2 v\len!, atan2(v.x, v.y)
   ieuclidean: (v) ->
     v.x = v\len!
-    v.y = math.atan2(v.x, v.y)
+    v.y = atan2(v.x, v.y)
   polar: (v) ->
     vector2 v.x * cos(v.y), v.x * sin(v.y)
   ipolar: (v) ->
@@ -34,11 +45,9 @@ index_mt = {
     v.x, v.y
 
   hash: (v) ->
-    seed = 2
-    seed = bit_xor(2, v.x + 0x9e3779b9 + bit_lshift(seed, 6) + bit_rshift(seed, 2))
-    bit_xor(seed, v.y + 0x9e3779b9 + bit_lshift(seed, 6) + bit_rshift(seed, 2))
+    hashxy v.x, v.y
   length: (v) ->
-    math.sqrt v.x^2 + v.y^2
+    sqrt v.x^2 + v.y^2
   length2: (v) ->
     v.x^2 + v.y^2
   dot: (a, b) ->
@@ -46,7 +55,7 @@ index_mt = {
   cross: (a, b) ->
     a.x*b.y - a.y*b.x
   distance: (a, b) ->
-    math.sqrt (a.x-b.x)^2 + (a.y-b.y)^2
+    sqrt (a.x-b.x)^2 + (a.y-b.y)^2
   distance2: (a, b) ->
     (a.x-b.x)^2 + (a.y-b.y)^2
   normalize: (v) ->
@@ -76,6 +85,8 @@ index_mt = {
   unm: (v) ->
     vector2 -v.x, -v.y
   eq: (a, b) ->
+    is_vector2(a) and
+    is_vector2(b) and
     a.x == b.x and a.y == b.y
   tostring: (v) ->
     "(#{v.x},#{v.y})"
@@ -109,7 +120,6 @@ mt = {
 
 vector2 = ffi_metatype "struct { double x, y; }", mt
 
-
 setmetatable {
   ctype: vector2
   zero: -> vector2 0, 0
@@ -117,6 +127,7 @@ setmetatable {
   from_polar: (d, angle) ->
     vector2 d * cos(angle), d * sin(angle)
   is_a: is_vector2
+  hashxy: hashxy
 }, {
   __call: (_, ...) -> vector2 ...
   __index: index_mt
