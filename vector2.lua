@@ -16,9 +16,7 @@ is_vector2 = function(n)
   return ffi_istype(vector2, n)
 end
 hashxy = function(x, y)
-  local seed = 2
-  seed = bit_xor(2, x + 0x9e3779b9 + bit_lshift(seed, 6) + bit_rshift(seed, 2))
-  return bit_xor(seed, y + 0x9e3779b9 + bit_lshift(seed, 6) + bit_rshift(seed, 2))
+  return x * 1e7 + y
 end
 index_mt = {
   clone = function(v)

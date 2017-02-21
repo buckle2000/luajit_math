@@ -17,10 +17,9 @@ is_number = (n) -> type(n) == "number"
 is_vector2 = (n) -> ffi_istype vector2, n
 
 hashxy = (x, y) ->
-  seed = 2
-  seed = bit_xor(2, x + 0x9e3779b9 + bit_lshift(seed, 6) + bit_rshift(seed, 2))
-  bit_xor(seed, y + 0x9e3779b9 + bit_lshift(seed, 6) + bit_rshift(seed, 2))
-
+  -- the easier the better
+  x * 1e7 + y
+  
 index_mt = {
   clone: (v) ->
     vector2 v.x, v.y
